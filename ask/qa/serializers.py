@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Question
+from .models import Question, Answer
 from taggit_serializer.serializers import TagListSerializerField, TaggitSerializer
 from django.contrib.auth.models import User
 from taggit.models import Tag
@@ -66,3 +66,17 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
+
+
+class AnswerSerializer(serializers.ModelSerializer):
+
+    author = serializers.SlugRelatedField(slug_field="username", queryset=User.objects.all())
+    question = serializers.SlugRelatedField(slug_field="slug", queryset=Question.objects.all())
+
+    class Meta:
+        model = Answer
+        fields = ("id", "question", "author", "text", "added_at")
+        lookup_field = 'id'
+        extra_kwargs = {
+            'url': {'lookup_field': 'id'}
+        }

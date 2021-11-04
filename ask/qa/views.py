@@ -1,6 +1,7 @@
 from rest_framework import viewsets, permissions, pagination, generics, filters
-from .serializers import QuestionSerializer, TagSerializer, ContactSerailizer, RegisterSerializer, UserSerializer
-from .models import Question
+from .serializers import QuestionSerializer, TagSerializer, ContactSerailizer, RegisterSerializer, UserSerializer, \
+    AnswerSerializer
+from .models import Question, Answer
 from taggit.models import Tag
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -27,7 +28,6 @@ class TagDetailView(generics.ListAPIView):
     serializer_class = QuestionSerializer
     pagination_class = PageNumberSetPagination
     permission_classes = [permissions.AllowAny]
-
 
     def get_queryset(self):
         tag_slug = self.kwargs['tag_slug'].lower()
@@ -67,7 +67,7 @@ class RegisterView(generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = RegisterSerializer
 
-    def post(self, request, *args,  **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
@@ -81,7 +81,18 @@ class ProfileView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserSerializer
 
-    def get(self, request, *args,  **kwargs):
+    def get(self, request, *args, **kwargs):
         return Response({
             "user": UserSerializer(request.user, context=self.get_serializer_context()).data,
         })
+
+
+class AnswerView(generics.ListCreateAPIView):
+    queryset = Answer.objects.all()
+    serializer_class = AnswerSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        question_slug = self.kwargs['question_slug'].lower()
+        question = Question.objects.get(slug=question_slug)
+        return Answer.objects.filter(question=question)

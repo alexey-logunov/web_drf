@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import QuestionViewSet, TagDetailView, TagView, AsideView, FeedBackView, RegisterView, ProfileView
+from .views import QuestionViewSet, TagDetailView, TagView, AsideView, FeedBackView, RegisterView, ProfileView, \
+    AnswerView
 
 router = DefaultRouter()
 router.register('questions', QuestionViewSet, basename='questions')
@@ -13,4 +14,6 @@ urlpatterns = [
     path("feedback/", FeedBackView.as_view()),
     path('register/', RegisterView.as_view()),
     path('profile/', ProfileView.as_view()),
+    path("answers/", AnswerView.as_view()),
+    path("answers/<slug:question_slug>/", AnswerView.as_view()),
 ]

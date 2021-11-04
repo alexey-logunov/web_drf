@@ -35,4 +35,14 @@ class Question(models.Model):
         ordering = ['-added_at']
 
 
+class Answer(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers', verbose_name='Вопрос')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_name', verbose_name='Автор ответа')
+    text = models.TextField(blank=True, verbose_name='Текст ответа')
+    added_at = models.DateTimeField(default=timezone.now, verbose_name='Дата публикации ответа')
 
+    class Meta:
+        ordering = ['-added_at']
+
+    def __str__(self):
+        return self.text
