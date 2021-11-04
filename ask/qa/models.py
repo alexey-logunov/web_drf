@@ -33,3 +33,6 @@ class Question(models.Model):
         verbose_name = 'Вопрос'
         verbose_name_plural = 'Вопросы'
         ordering = ['-added_at']
+
+
+
