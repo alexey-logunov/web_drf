@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, pagination, generics
+from rest_framework import viewsets, permissions, pagination, generics, filters
 from .serializers import QuestionSerializer, TagSerializer, ContactSerailizer
 from .models import Question
 from taggit.models import Tag
@@ -14,6 +14,8 @@ class PageNumberSetPagination(pagination.PageNumberPagination):
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
+    search_fields = ['title', 'text']
+    filter_backends = (filters.SearchFilter,)
     serializer_class = QuestionSerializer
     queryset = Question.objects.all()
     lookup_field = 'slug'
