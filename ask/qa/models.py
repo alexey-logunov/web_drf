@@ -16,15 +16,15 @@ class QuestionManager(models.Manager):
 
 class Question(models.Model):
     objects = QuestionManager()
-    title = models.CharField(max_length=255, blank=True, verbose_name='Название вопроса')
-    text = RichTextUploadingField(blank=True, verbose_name='Описание вопроса')
+    title = models.CharField(max_length=255, verbose_name='Название вопроса')
+    text = RichTextUploadingField(verbose_name='Описание вопроса')
     image = models.ImageField(blank=True, verbose_name='Картинка')
-    slug = models.SlugField(blank=True)
+    slug = models.SlugField()
     added_at = models.DateField(default=timezone.now, verbose_name='Дата публикации вопроса')
     rating = models.IntegerField(default=0, verbose_name='Рейтинг вопроса')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name='Автор вопроса')
+    author = models.ForeignKey(User, default=0, on_delete=models.CASCADE, verbose_name='Автор вопроса')
     likes = models.ManyToManyField(User, related_name='likes_set', verbose_name='Количество лайков вопроса')
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
 
     def __str__(self):
         return self.title
@@ -38,7 +38,7 @@ class Question(models.Model):
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers', verbose_name='Вопрос')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_name', verbose_name='Автор ответа')
-    text = models.TextField(blank=True, verbose_name='Текст ответа')
+    text = models.TextField(verbose_name='Текст ответа')
     added_at = models.DateTimeField(default=timezone.now, verbose_name='Дата публикации ответа')
 
     class Meta:

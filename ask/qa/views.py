@@ -15,30 +15,32 @@ class PageNumberSetPagination(pagination.PageNumberPagination):
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
-    search_fields = ['title', 'text']
-    filter_backends = (filters.SearchFilter,)
-    serializer_class = QuestionSerializer
     queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    filter_fields = ['author', 'added_at', 'rating']
+    search_fields = ['title', 'text']
+    ordering_fields = ['added_at', 'rating', 'author', 'likes']
     lookup_field = 'slug'
     permission_classes = [permissions.AllowAny]
     pagination_class = PageNumberSetPagination
-
-
-class TagDetailView(generics.ListAPIView):
-    serializer_class = QuestionSerializer
-    pagination_class = PageNumberSetPagination
-    permission_classes = [permissions.AllowAny]
-
-    def get_queryset(self):
-        tag_slug = self.kwargs['tag_slug'].lower()
-        tag = Tag.objects.get(slug=tag_slug)
-        return Question.objects.filter(tags=tag)
 
 
 class TagView(generics.ListAPIView):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = [permissions.AllowAny]
+
+
+class TagDetailView(generics.ListAPIView):
+    serializer_class = QuestionSerializer
+    permission_classes = [permissions.AllowAny]
+    pagination_class = PageNumberSetPagination
+
+    def get_queryset(self):
+        tag_slug = self.kwargs['tag_slug'].lower()
+        tag = Tag.objects.get(slug=tag_slug)
+        return Question.objects.filter(tags=tag)
 
 
 class AsideView(generics.ListAPIView):
@@ -48,8 +50,8 @@ class AsideView(generics.ListAPIView):
 
 
 class FeedBackView(APIView):
-    permission_classes = [permissions.AllowAny]
     serializer_class = ContactSerailizer
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer_class = ContactSerailizer(data=request.data)
@@ -64,8 +66,8 @@ class FeedBackView(APIView):
 
 
 class RegisterView(generics.GenericAPIView):
-    permission_classes = [permissions.AllowAny]
     serializer_class = RegisterSerializer
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -78,8 +80,8 @@ class RegisterView(generics.GenericAPIView):
 
 
 class ProfileView(generics.GenericAPIView):
-    permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         return Response({
