@@ -1,3 +1,4 @@
+from django.shortcuts import render
 from rest_framework import viewsets, permissions, pagination, generics, filters
 from .serializers import QuestionSerializer, TagSerializer, ContactSerailizer, RegisterSerializer, UserSerializer, \
     AnswerSerializer
@@ -98,3 +99,6 @@ class AnswerView(generics.ListCreateAPIView):
         question_slug = self.kwargs['question_slug'].lower()
         question = Question.objects.get(slug=question_slug)
         return Answer.objects.filter(question=question)
+
+def auth(request):
+    return render(request, 'oauth.html')

@@ -13,11 +13,14 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.conf import settings
 from django.conf.urls.static import static
+
+from qa.views import auth
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,4 +28,7 @@ urlpatterns = [
     path("ask/token/", TokenObtainPairView.as_view(), name="token"),
     path("ask/refresh_token/", TokenRefreshView.as_view(), name="refresh_token"),
     path("ckeditor/", include('ckeditor_uploader.urls')),
+    path('', include('social_django.urls', namespace='social')),
+    path('auth/', auth),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
