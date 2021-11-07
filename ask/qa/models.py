@@ -1,29 +1,20 @@
 from django.db import models
-from django.conf import settings
-from django.utils import timezone
 from ckeditor_uploader.fields import RichTextUploadingField
 from taggit.managers import TaggableManager
 from django.contrib.auth.models import User
-
-
-class QuestionManager(models.Manager):
-    def new(self):
-        return self.order_by('-added_at')
-
-    def popular(self):
-        return self.order_by('-rating')
+# from django.conf import settings
+# from django.utils import timezone
 
 
 class Question(models.Model):
-    objects = QuestionManager()
     title = models.CharField(max_length=255, verbose_name='Название вопроса')
     text = RichTextUploadingField(verbose_name='Описание вопроса')
     image = models.ImageField(blank=True, verbose_name='Картинка')
     slug = models.SlugField()
-    added_at = models.DateField(default=timezone.now, verbose_name='Дата публикации вопроса')
+    added_at = models.DateField(auto_now_add=True, verbose_name='Дата публикации вопроса')  # default=timezone.now
     rating = models.IntegerField(default=0, verbose_name='Рейтинг вопроса')
-    author = models.ForeignKey(User, default=0, on_delete=models.CASCADE, verbose_name='Автор вопроса')
-    likes = models.ManyToManyField(User, related_name='likes_set', verbose_name='Количество лайков вопроса')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор вопроса')
+    likes = models.ManyToManyField(User, blank=True, related_name='likes_set', verbose_name='Количество лайков вопроса')
     tags = TaggableManager(blank=True)
 
     def __str__(self):
@@ -39,7 +30,7 @@ class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers', verbose_name='Вопрос')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_name', verbose_name='Автор ответа')
     text = models.TextField(verbose_name='Текст ответа')
-    added_at = models.DateTimeField(default=timezone.now, verbose_name='Дата публикации ответа')
+    added_at = models.DateField(auto_now_add=True, verbose_name='Дата публикации ответа')  # default=timezone.now
 
     class Meta:
         ordering = ['-added_at']

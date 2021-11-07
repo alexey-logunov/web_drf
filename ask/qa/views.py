@@ -1,5 +1,8 @@
 from django.shortcuts import render
-from rest_framework import viewsets, permissions, pagination, generics, filters
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets, permissions, pagination, generics
+from rest_framework.filters import OrderingFilter, SearchFilter
+
 from .serializers import QuestionSerializer, TagSerializer, ContactSerailizer, RegisterSerializer, UserSerializer, \
     AnswerSerializer
 from .models import Question, Answer
@@ -18,13 +21,14 @@ class PageNumberSetPagination(pagination.PageNumberPagination):
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
-    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filter_fields = ['author', 'added_at', 'rating']
     search_fields = ['title', 'text']
     ordering_fields = ['added_at', 'rating', 'author', 'likes']
     lookup_field = 'slug'
     permission_classes = [permissions.AllowAny]
-    pagination_class = PageNumberSetPagination
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    # pagination_class = PageNumberSetPagination
 
 
 class TagView(generics.ListAPIView):

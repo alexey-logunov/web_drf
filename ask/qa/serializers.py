@@ -12,7 +12,8 @@ class QuestionSerializer(TaggitSerializer, serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ("id", "title", "text", "image", "slug", "added_at", "rating", "author", "likes", "tags")
+        fields = '__all__'
+        # fields = ("id", "title", "text", "image", "slug", "added_at", "rating", "author", "likes", "tags")
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
@@ -43,11 +44,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = [
-            "username",
-            "password",
-            "password2",
-        ]
+        fields = ["username", "password", "password2"]
         extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
@@ -75,8 +72,9 @@ class AnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ("id", "question", "author", "text", "added_at")
-        lookup_field = 'id'
+        # fields = '__all__'
+        fields = ("question", "author", "text", "added_at")
+        lookup_field = 'question'
         extra_kwargs = {
-            'url': {'lookup_field': 'id'}
+            'url': {'lookup_field': 'question'}
         }
