@@ -1,11 +1,15 @@
+from django.db.models import Count, Case, When, Avg
 from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, pagination, generics
 from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.mixins import UpdateModelMixin
+from rest_framework.viewsets import GenericViewSet
 
+from .permissions import IsAuthorOrStaffOrReadOnly
 from .serializers import QuestionSerializer, TagSerializer, ContactSerailizer, RegisterSerializer, UserSerializer, \
-    AnswerSerializer
-from .models import Question, Answer
+    AnswerSerializer, UserQuestionRelationSerializer
+from .models import Question, Answer, UserQuestionRelation
 from taggit.models import Tag
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -19,16 +23,24 @@ class PageNumberSetPagination(pagination.PageNumberPagination):
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
-    queryset = Question.objects.all()
+    queryset = Question.objects.all().annotate(
+            annotated_likes=Count(Case(When(userquestionrelation__like=True, then=1))),
+            rate=Avg('userquestionrelation__rate')).order_by('id')
     serializer_class = QuestionSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filter_fields = ['author', 'added_at', 'rating']
     search_fields = ['title', 'text']
     ordering_fields = ['added_at', 'rating', 'author', 'likes']
     lookup_field = 'slug'
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAuthorOrStaffOrReadOnly]
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    # permission_classes = [permissions.AllowAny]
+
     # pagination_class = PageNumberSetPagination
+
+    def perform_create(self, serializer):
+        serializer.validated_data['author'] = self.request.user
+        serializer.save()
 
 
 class TagView(generics.ListAPIView):
@@ -104,5 +116,18 @@ class AnswerView(generics.ListCreateAPIView):
         question = Question.objects.get(slug=question_slug)
         return Answer.objects.filter(question=question)
 
+
 def auth(request):
     return render(request, 'oauth.html')
+
+
+class UserQuestionRelationView(UpdateModelMixin, GenericViewSet):
+    queryset = UserQuestionRelation.objects.all()
+    serializer_class = UserQuestionRelationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'question'
+
+    def get_object(self):
+        obj, _ = UserQuestionRelation.objects.get_or_create(user=self.request.user,
+                                                            question_slug=self.kwargs['question'])
+        return obj

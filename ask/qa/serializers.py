@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Question, Answer
+from .models import Question, Answer, UserQuestionRelation
 from taggit_serializer.serializers import TagListSerializerField, TaggitSerializer
 from django.contrib.auth.models import User
 from taggit.models import Tag
@@ -9,6 +9,9 @@ class QuestionSerializer(TaggitSerializer, serializers.ModelSerializer):
 
     tags = TagListSerializerField()
     author = serializers.SlugRelatedField(slug_field="username", queryset=User.objects.all())
+    likes_count = serializers.SerializerMethodField()
+    annotated_likes = serializers.IntegerField(read_only=True)
+    rate = serializers.DecimalField(max_digits=3, decimal_places=2, read_only=True)
 
     class Meta:
         model = Question
@@ -18,6 +21,9 @@ class QuestionSerializer(TaggitSerializer, serializers.ModelSerializer):
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
         }
+
+    def get_likes_count(self, instance):
+        return UserQuestionRelation.objects.filter(question=instance, like=True).count()
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -78,3 +84,9 @@ class AnswerSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'url': {'lookup_field': 'question'}
         }
+
+
+class UserQuestionRelationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserQuestionRelation
+        fields = ('question', 'like', 'in_bookmarks', 'rate')

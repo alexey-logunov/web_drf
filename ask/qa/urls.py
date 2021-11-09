@@ -1,10 +1,12 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import QuestionViewSet, TagDetailView, TagView, AsideView, FeedBackView, RegisterView, ProfileView, \
-    AnswerView
+    AnswerView, UserQuestionRelationView
 
 router = DefaultRouter()
+
 router.register('questions', QuestionViewSet, basename='questions')
+router.register('question_relation', UserQuestionRelationView)
 
 urlpatterns = [
     path("", include(router.urls)),
