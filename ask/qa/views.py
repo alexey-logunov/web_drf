@@ -25,7 +25,7 @@ class PageNumberSetPagination(pagination.PageNumberPagination):
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all().annotate(
             annotated_likes=Count(Case(When(userquestionrelation__like=True, then=1))),
-            rate=Avg('userquestionrelation__rate')).order_by('id')
+            rate=Avg('userquestionrelation__rate')).select_related('author').prefetch_related('likes').order_by('id')
     serializer_class = QuestionSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filter_fields = ['author', 'added_at', 'rating']

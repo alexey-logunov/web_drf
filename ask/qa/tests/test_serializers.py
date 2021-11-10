@@ -8,11 +8,11 @@ from ..serializers import QuestionSerializer
 
 class QuestionSerializerTestCase(TestCase):
     def test_ok(self):
-        user1 = User.objects.create(username="user1")
-        user2 = User.objects.create(username="user2")
-        user3 = User.objects.create(username="user3")
+        user1 = User.objects.create(username="user1", first_name="Ivan", last_name='Ivanov')
+        user2 = User.objects.create(username="user2", first_name="Semen", last_name='Semenov')
+        user3 = User.objects.create(username="user3", first_name="Vasily", last_name='Pupkin')
         question_1 = Question.objects.create(title="title_question_1", text="text_question_1",
-                                             slug="slug1", rating=1, tags=["tag1"])
+                                             slug="slug1", rating=1, tags=["tag1"], author=user1)
         question_2 = Question.objects.create(title="title_question_2", text="text_question_2",
                                              slug="slug2", rating=2, tags=["tag2"])
         UserQuestionRelation.objects.create(user=user1, question=question_1, like=True, rate=5)
@@ -32,30 +32,56 @@ class QuestionSerializerTestCase(TestCase):
             {
                 "id": question_1.id,
                 "tags": ["tag1"],
-                "author": "test_username",
+                "author_name": "user1",
                 "title": "title_question_1",
                 "text": "text_question_1",
                 "image": None,
                 "slug": "slug1",
                 "added_at": "2021-11-09",
                 "rating": 1,
-                "likes": [],
-                "likes_count": 3,
+                "likes": [
+                    {
+                        "first_name": "Ivan",
+                        "last_name": "Ivanov"
+                    },
+                    {
+                        "first_name": "Semen",
+                        "last_name": "Semenov"
+                    },
+                    {
+                        "first_name": "Vasily",
+                        "last_name": "Pupkin"
+                    }
+                ],
+                # "likes_count": 3,
                 "annotated_likes": 3,
                 "rate": '4.67'
             },
             {
                 "id": question_2.id,
                 "tags": ["tag2"],
-                "author": "test_username",
+                "author_name": "",
                 "title": "title_question_2",
                 "text": "text_question_2",
                 "image": None,
                 "slug": "slug2",
                 "added_at": "2021-11-09",
                 "rating": 2,
-                "likes": [],
-                "likes_count": 2,
+                "likes": [
+                    {
+                        "first_name": "Ivan",
+                        "last_name": "Ivanov"
+                    },
+                    {
+                        "first_name": "Semen",
+                        "last_name": "Semenov"
+                    },
+                    {
+                        "first_name": "Vasily",
+                        "last_name": "Pupkin"
+                    }
+                ],
+                # "likes_count": 2,
                 "annotated_likes": 2,
                 "rate": '3.5'
             }
