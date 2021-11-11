@@ -17,7 +17,9 @@ class QuestionSerializerTestCase(TestCase):
                                              slug="slug2", rating=2, tags=["tag2"])
         UserQuestionRelation.objects.create(user=user1, question=question_1, like=True, rate=5)
         UserQuestionRelation.objects.create(user=user2, question=question_1, like=True, rate=5)
-        UserQuestionRelation.objects.create(user=user3, question=question_1, like=True, rate=4)
+        user_question_3 = UserQuestionRelation.objects.create(user=user3, question=question_1, like=True)
+        user_question_3.rate = 4
+        user_question_3.save()
 
         UserQuestionRelation.objects.create(user=user1, question=question_2, like=True, rate=3)
         UserQuestionRelation.objects.create(user=user2, question=question_2, like=True, rate=4)

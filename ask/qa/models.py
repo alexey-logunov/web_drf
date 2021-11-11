@@ -14,7 +14,7 @@ class Question(models.Model):
     image = models.ImageField(blank=True, verbose_name='Картинка')
     slug = models.SlugField()
     added_at = models.DateField(auto_now_add=True, verbose_name='Дата публикации вопроса')  # default=timezone.now
-    rating = models.IntegerField(default=0, verbose_name='Рейтинг вопроса')
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0, verbose_name='Рейтинг вопроса')
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='author_question',
                                verbose_name='Автор вопроса')
     likes = models.ManyToManyField(User, blank=True, related_name='likes_set', verbose_name='Кому понравился вопрос')
@@ -65,3 +65,14 @@ class UserQuestionRelation(models.Model):
 
     def __str__(self):
         return f'{self.user.username}: {self.question.title}, оценка: {self.rate}'
+
+    def save(self, *args, **kwargs):
+        from qa.logic import set_rating
+
+        creating = self.pk
+        old_rating = self.rate
+
+        super().save(*args, **kwargs)
+        new_rating = self.rate
+        if old_rating != new_rating or creating:
+            set_rating(self.question)
